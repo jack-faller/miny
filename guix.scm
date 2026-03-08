@@ -13,7 +13,7 @@
   (define old-cwd (getcwd))
   (chdir (dirname file))
   (define keep?
-    (and (not (equal? file (canonicalize-path ".git")))
+    (and (not (equal? file (string-append (current-filename) "/.git")))
 	 (with-output-to-file "/dev/null"
 	   (lambda ()
 	     (= 1 (status:exit-val (system* "git" "check-ignore" file)))))))
