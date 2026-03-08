@@ -10,6 +10,9 @@
   #:use-module (gnu packages gl))
 
 (define (git-not-ignored? file stat)
+  (display "Git checking file: ")
+  (display file)
+  (newline)
   (define old-cwd (getcwd))
   (chdir (dirname file))
   (define keep?
