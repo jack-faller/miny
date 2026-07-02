@@ -16,7 +16,7 @@
   (chdir (dirname file))
   (define keep?
     (or
-     (not (= 0 (system* "git" "rev-parse" "--is-inside-work-tree" file)))
+     (not (= 0 (system* "git" "rev-parse" "--is-inside-work-tree")))
      (let ((root
              (let* ((pipe (open-pipe* OPEN_READ "git" "rev-parse" "--show-toplevel"))
                     (output (read-line pipe)))
