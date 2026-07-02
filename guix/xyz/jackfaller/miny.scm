@@ -17,7 +17,7 @@
 
 (define (git-source-file? file stat)
   (or
-   (= 0 (silent "git" "rev-parse" "--is-inside-work-tree" file))
+   (not (= 0 (silent "git" "rev-parse" "--is-inside-work-tree" file)))
    (let ()
      (define root
        (let* ((pipe (open-pipe* OPEN_READ "git" "rev-parse" "--show-toplevel"))
