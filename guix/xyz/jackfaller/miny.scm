@@ -12,19 +12,22 @@
   #:use-module (ice-9 rdelim))
 
 (define (git-source-file? file stat)
-  (define root
-    (let* ((pipe (open-pipe* OPEN_READ "git" "rev-parse" "--show-toplevel"))
-           (root (read-line pipe)))
-      (unless (= 0 (close-pipe pipe))
-        (error "Git failed."))
-      root))
-  (define old-cwd (getcwd))
-  (chdir root)
-  (define keep?
-    (and (not (string=? (string-append root "/.git") file))
-         (= 1 (status:exit-val (system* "git" "check-ignore" file)))))
-  (chdir old-cwd)
-  keep?)
+  (or
+   (not (= 0 (system* "git" "rev-parse" "--is-inside-work-tree" file)))
+   (begin
+     (define root
+       (let* ((pipe (open-pipe* OPEN_READ "git" "rev-parse" "--show-toplevel"))
+              (root (read-line pipe)))
+         (unless (= 0 (close-pipe pipe))
+           (error "Git failed."))
+         root))
+     (define old-cwd (getcwd))
+     (chdir root)
+     (define keep?
+       (and (not (string=? (string-append root "/.git") file))
+            (= 1 (status:exit-val (system* "git" "check-ignore" file)))))
+     (chdir old-cwd)
+     keep?)))
 
 (define-syntax relative-file
   (syntax-rules ()
