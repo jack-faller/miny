@@ -56,7 +56,6 @@
                    (delete 'configure)
 		   (replace 'install
 		     (lambda* (#:key outputs #:allow-other-keys)
-               (error "a")
 		       (let* ((out (assoc-ref outputs "out"))
 			      (bin (string-append out "/bin")))
 			 (install-file "miny" bin)))))
