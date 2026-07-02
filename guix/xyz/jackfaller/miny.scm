@@ -11,7 +11,7 @@
   #:use-module (ice-9 popen)
   #:use-module (ice-9 rdelim))
 
-(define (git-tree-file? file stat)
+(define (git-source-file? file stat)
   (define root
     (let* ((pipe (open-pipe* OPEN_READ "git" "rev-parse" "--show-toplevel"))
            (root (read-line pipe)))
@@ -41,7 +41,7 @@
   (package
     (name "miny")
     (version "0.6.0")
-    (source (relative-file "../../.." name #:recursive? #t #:select? git-tree-file?))
+    (source (relative-file "../../.." name #:recursive? #t #:select? git-source-file?))
     (build-system gnu-build-system)
     (arguments
      (list
