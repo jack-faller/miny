@@ -1,25 +1,27 @@
-(define-module (miny)
+(define-module (xyz jackfaller miny)
   #:export (miny)
 
   #:use-module (guix gexp)
   #:use-module (guix packages)
   #:use-module (guix git-download)
   #:use-module (guix build-system gnu)
-  #:use-module ((guix licenses)
-                #:prefix license:)
-  #:use-module (gnu packages gl))
+  #:use-module ((guix licenses) #:prefix license:)
+  #:use-module (gnu packages gl)
+  #:use-module (ice-9 rdelim)
+  #:use-module (ice-9 popen))
 
-(define (git-not-ignored? file stat)
-  (display "Git checking file: ")
-  (display file)
-  (newline)
+
+(define (git-tree-file? file stat)
+  (define root
+    (let* ((pipe (open-pipe* OPEN_READ "git" "rev-parse" "--show-toplevel"))
+           (root (read-line pipe)))
+      (close-pipe pipe)
+      root))
   (define old-cwd (getcwd))
-  (chdir (dirname file))
+  (chdir root)
   (define keep?
-    (and (not (equal? file (string-append (current-filename) "/.git")))
-	 (with-output-to-file "/dev/null"
-	   (lambda ()
-	     (= 1 (status:exit-val (system* "git" "check-ignore" file)))))))
+    (or (not (string=? file (string-append root "/.git")))
+        (= 1 (status:exit-val (system* "git" "check-ignore" file)))))
   (chdir old-cwd)
   keep?)
 
@@ -27,7 +29,7 @@
   (package
     (name "miny")
     (version "0.6.0")
-    (source (local-file "." name #:recursive? #t #:select? git-not-ignored?))
+    (source (local-file "." name #:recursive? #t #:select? git-tree-file?))
     (build-system gnu-build-system)
     (arguments
      (list
