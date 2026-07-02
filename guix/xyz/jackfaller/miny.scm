@@ -1,20 +1,22 @@
 (define-module (xyz jackfaller miny)
   #:export (miny)
 
-  #:use-module (guix gexp)
-  #:use-module (guix packages)
-  #:use-module (guix git-download)
-  #:use-module (guix build-system gnu)
-  #:use-module ((guix licenses) #:prefix license:)
   #:use-module (gnu packages gl)
-  #:use-module (ice-9 rdelim)
-  #:use-module (ice-9 popen))
+  #:use-module (guix build-system gnu)
+  #:use-module (guix gexp)
+  #:use-module (guix git-download)
+  #:use-module ((guix licenses) #:prefix license:)
+  #:use-module (guix packages)
+  #:use-module (guix utils)
+  #:use-module (ice-9 popen)
+  #:use-module (ice-9 rdelim))
 
 (define (git-tree-file? file stat)
   (define root
     (let* ((pipe (open-pipe* OPEN_READ "git" "rev-parse" "--show-toplevel"))
            (root (read-line pipe)))
-      (close-pipe pipe)
+      (unless (= 0 (close-pipe pipe))
+        (error "Git failed."))
       root))
   (define old-cwd (getcwd))
   (chdir root)
@@ -24,11 +26,22 @@
   (chdir old-cwd)
   keep?)
 
+(define-syntax relative-file
+  (syntax-rules ()
+    ((_ path rest ...)
+     (local-file
+      (string-append
+       (if (current-filename)
+           (dirname (current-filename))
+           (current-source-directory))
+       "/" path)
+      rest ...))))
+
 (define miny
   (package
     (name "miny")
     (version "0.6.0")
-    (source (local-file "." name #:recursive? #t #:select? git-tree-file?))
+    (source (relative-file "../../.." name #:recursive? #t #:select? git-tree-file?))
     (build-system gnu-build-system)
     (arguments
      (list
