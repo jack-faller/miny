@@ -10,7 +10,6 @@
   #:use-module (ice-9 rdelim)
   #:use-module (ice-9 popen))
 
-
 (define (git-tree-file? file stat)
   (define root
     (let* ((pipe (open-pipe* OPEN_READ "git" "rev-parse" "--show-toplevel"))
@@ -46,4 +45,3 @@
     (synopsis "Minesweeper")
     (description "Minesweeper")
     (license license:expat)))
-miny
