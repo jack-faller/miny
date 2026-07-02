@@ -21,8 +21,8 @@
   (define old-cwd (getcwd))
   (chdir root)
   (define keep?
-    (or (not (string=? file (string-append root "/.git")))
-        (= 1 (status:exit-val (system* "git" "check-ignore" file)))))
+    (and (not (string=? (string-append root "/.git") file))
+         (= 1 (status:exit-val (system* "git" "check-ignore" file)))))
   (chdir old-cwd)
   keep?)
 
