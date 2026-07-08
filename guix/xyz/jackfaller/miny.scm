@@ -11,12 +11,19 @@
   #:use-module (ice-9 popen)
   #:use-module (ice-9 rdelim))
 
+(define (silent . args)
+  (with-output-to-file "/dev/null"
+    (lambda ()
+      (with-error-to-file "/dev/null"
+        (lambda ()
+          (apply system* args))))))
+
 (define (git-source-file? file stat)
   (define old-cwd (getcwd))
   (chdir (dirname file))
   (define keep?
     (or
-     (not (= 0 (system* "git" "rev-parse" "--is-inside-work-tree")))
+     (not (= 0 (silent "git" "rev-parse" "--is-inside-work-tree")))
      (let ((root
              (let* ((pipe (open-pipe* OPEN_READ "git" "rev-parse" "--show-toplevel"))
                     (output (read-line pipe)))
@@ -25,7 +32,7 @@
                output)))
        (chdir root)
        (and (not (string=? (string-append root "/.git") file))
-            (= 1 (status:exit-val (system* "git" "check-ignore" file)))))))
+            (= 1 (status:exit-val (silent "git" "check-ignore" file)))))))
   (chdir old-cwd)
   keep?)
 
