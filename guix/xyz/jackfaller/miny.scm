@@ -59,5 +59,5 @@
     (inputs (list freeglut))
     (home-page "https://github.com/spacecamper/miny")
     (synopsis "Minesweeper")
-    (description "Minesweeper")
+    (description "A simple Minesweeper clone that supports scoreboards, arbitrary board sizes, various game statistics, and saves replays of completed games.")
     (license license:expat)))
