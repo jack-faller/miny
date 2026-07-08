@@ -4,48 +4,9 @@
   #:use-module (gnu packages gl)
   #:use-module (guix build-system gnu)
   #:use-module (guix gexp)
-  #:use-module (guix git-download)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (guix packages)
-  #:use-module (guix utils)
-  #:use-module (ice-9 popen)
-  #:use-module (ice-9 rdelim))
-
-(define (silent . args)
-  (with-output-to-file "/dev/null"
-    (lambda ()
-      (with-error-to-file "/dev/null"
-        (lambda ()
-          (apply system* args))))))
-
-(define (git-source-file? file stat)
-  (define old-cwd (getcwd))
-  (chdir (dirname file))
-  (define keep?
-    (or
-     (not (= 0 (silent "git" "rev-parse" "--is-inside-work-tree")))
-     (let ((root
-             (let* ((pipe (open-pipe* OPEN_READ "git" "rev-parse" "--show-toplevel"))
-                    (output (read-line pipe)))
-               (unless (= 0 (close-pipe pipe))
-                 (error "Git failed."))
-               output)))
-       (chdir root)
-       (and (not (string=? (string-append root "/.git") file))
-            (= 1 (status:exit-val (silent "git" "check-ignore" file)))))))
-  (chdir old-cwd)
-  keep?)
-
-(define-syntax relative-file
-  (syntax-rules ()
-    ((_ path rest ...)
-     (local-file
-      (string-append
-       (if (current-filename)
-           (dirname (current-filename))
-           (current-source-directory))
-       "/" path)
-      rest ...))))
+  #:use-module (guix channels utils))
 
 (define miny
   (package

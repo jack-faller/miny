@@ -1,4 +1,7 @@
 (channel
  (version 0)
  (url "https://github.com/jack-faller/miny")
- (directory "guix"))
+ (directory "guix")
+ (channel
+  (name channel-utils)
+  (url "https://github.com/jack-faller/guix-channel-utils")))
